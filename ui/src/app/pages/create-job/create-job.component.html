@@ -1,0 +1,66 @@
+<div class="page-header">
+  <h1>Create Job</h1>
+  <p>Capture a new job from a customer description or service adviser intake.</p>
+</div>
+
+<div class="form-card">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label for="description">Job description *</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        rows="5"
+        placeholder="e.g. Customer reports grinding noise when braking, worse in wet weather."
+      ></textarea>
+      @if (form.controls.description.touched && form.controls.description.errors?.['required']) {
+        <span class="field-error">Description is required.</span>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="customerName">Customer name</label>
+        <input id="customerName" type="text" formControlName="customerName" placeholder="e.g. John Smith" />
+      </div>
+      <div class="form-group">
+        <label for="assignedTo">Assigned to</label>
+        <select id="assignedTo" formControlName="assignedTo">
+          <option value="">Unassigned</option>
+          @for (advisor of serviceAdvisors; track advisor) {
+            <option [value]="advisor">{{ advisor }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="registration">Vehicle registration</label>
+        <input id="registration" type="text" formControlName="registration" placeholder="e.g. AB12 CDE" />
+      </div>
+      <div class="form-group">
+        <label for="make">Make</label>
+        <input id="make" type="text" formControlName="make" placeholder="e.g. Ford" />
+      </div>
+      <div class="form-group">
+        <label for="model">Model</label>
+        <input id="model" type="text" formControlName="model" placeholder="e.g. Focus" />
+      </div>
+    </div>
+
+    @if (errorMessage) {
+      <div class="alert alert-error">{{ errorMessage }}</div>
+    }
+    @if (successMessage) {
+      <div class="alert alert-success">{{ successMessage }}</div>
+    }
+
+    <div class="form-actions">
+      <button type="submit" class="btn-primary" [disabled]="submitting">
+        {{ submitting ? 'Creating…' : 'Create job' }}
+      </button>
+      <a routerLink="/dashboard" class="btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>

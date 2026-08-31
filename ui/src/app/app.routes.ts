@@ -1,20 +1,18 @@
 import { Routes } from '@angular/router';
 
-import { DashboardLayout } from './layout/dashboard-layout/dashboard-layout';
+import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
+import { CreateJobComponent } from './pages/create-job/create-job.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: DashboardLayout,
+    component: MainLayoutComponent,
     children: [
-      {
-        path: '',
-        loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
-      },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
+      { path: 'jobs/create', component: CreateJobComponent },
     ],
   },
-  {
-    path: '**',
-    redirectTo: '',
-  },
+  { path: '**', redirectTo: 'dashboard' },
 ];

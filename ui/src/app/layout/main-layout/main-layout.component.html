@@ -1,0 +1,47 @@
+<div class="app-shell" [class.sidebar-collapsed]="sidebarCollapsed">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">G</div>
+      <span class="brand-text">Garage Management</span>
+    </div>
+
+    <a routerLink="/jobs/create" class="quick-create-btn">
+      <span class="icon">+</span>
+      <span class="label">Create Job</span>
+    </a>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        <span class="nav-icon">▦</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a routerLink="/jobs/create" routerLinkActive="active">
+        <span class="nav-icon">✎</span>
+        <span class="nav-label">Create Job</span>
+      </a>
+    </nav>
+
+    <button type="button" class="sidebar-toggle" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+      ‹
+    </button>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <div class="topbar-left"></div>
+      <div class="topbar-actions">
+        <button type="button" class="icon-btn" title="Search">⌕</button>
+        <button type="button" class="icon-btn status-dot" title="System status">●</button>
+        <button type="button" class="icon-btn" title="Support">☎</button>
+        <button type="button" class="icon-btn" title="Chat">💬</button>
+        <button type="button" class="icon-btn" title="Help">?</button>
+        <button type="button" class="icon-btn" title="Settings">⚙</button>
+        <div class="avatar" title="User profile">SA</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

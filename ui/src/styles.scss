@@ -7,21 +7,19 @@
 html,
 body {
   height: 100%;
+  margin: 0;
 }
 
 body {
-  margin: 0;
-  font-family:
-    Inter,
-    'Segoe UI',
-    Roboto,
-    Helvetica,
-    Arial,
-    sans-serif;
-  color: #111827;
-  background: #f3f4f6;
+  font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1a1a2e;
+  background: #f4f7f9;
+  -webkit-font-smoothing: antialiased;
 }
 
-code {
-  font-family: Consolas, 'Courier New', monospace;
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
 }
