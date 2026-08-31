@@ -27,6 +27,10 @@ export class JobStatusComponent implements OnInit {
     return parts.length > 0 ? parts.join(' · ') : '—';
   }
 
+  protected statusClass(status: string): string {
+    return status.toLowerCase().replace(/\s+/g, '-');
+  }
+
   private loadJobs(): void {
     this.loading.set(true);
     this.error.set(null);

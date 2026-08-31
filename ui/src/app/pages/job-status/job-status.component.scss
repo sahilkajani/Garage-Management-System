@@ -105,3 +105,33 @@ tbody tr:hover {
   white-space: nowrap;
   color: #6b7280;
 }
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.status-badge--unscheduled {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge--scheduled {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-badge--completed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-badge--unassigned {
+  background: #f3f4f6;
+  color: #6b7280;
+}

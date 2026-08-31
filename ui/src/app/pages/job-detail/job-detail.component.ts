@@ -36,12 +36,16 @@ export class JobDetailComponent implements OnInit {
   ];
 
   readonly criticalLevels = ['High', 'Medium', 'Low'];
+  readonly statusOptions = ['Unscheduled', 'Scheduled', 'Completed'];
 
   readonly form = this.fb.group({
     description: ['', [Validators.required, Validators.maxLength(2000)]],
     condition: ['', Validators.maxLength(1000)],
     miles: [null as number | null, [Validators.min(0), Validators.max(9999999)]],
     critical: [''],
+    status: ['Unscheduled', Validators.required],
+    scheduledDate: [''],
+    completedDate: [''],
     registration: ['', Validators.maxLength(20)],
     make: ['', Validators.maxLength(100)],
     model: ['', Validators.maxLength(100)],
@@ -65,6 +69,9 @@ export class JobDetailComponent implements OnInit {
           condition: job.condition ?? '',
           miles: job.miles ?? null,
           critical: job.critical ?? '',
+          status: this.normalizeStatus(job.status),
+          scheduledDate: this.toDateTimeLocalValue(job.scheduledDate),
+          completedDate: this.toDateTimeLocalValue(job.completedDate),
           registration: job.registration ?? '',
           make: job.make ?? '',
           model: job.model ?? '',
@@ -99,6 +106,9 @@ export class JobDetailComponent implements OnInit {
         condition: value.condition || undefined,
         miles: value.miles ?? undefined,
         critical: value.critical || undefined,
+        status: value.status ?? 'Unscheduled',
+        scheduledDate: this.fromDateTimeLocalValue(value.scheduledDate ?? ''),
+        completedDate: this.fromDateTimeLocalValue(value.completedDate ?? ''),
         registration: value.registration || undefined,
         make: value.make || undefined,
         model: value.model || undefined,
@@ -116,5 +126,30 @@ export class JobDetailComponent implements OnInit {
           this.saving.set(false);
         },
       });
+  }
+
+  private normalizeStatus(status: string): string {
+    const match = this.statusOptions.find(
+      (option) => option.toLowerCase() === status.toLowerCase()
+    );
+    return match ?? 'Unscheduled';
+  }
+
+  private toDateTimeLocalValue(iso?: string): string {
+    if (!iso) {
+      return '';
+    }
+
+    const date = new Date(iso);
+    const pad = (value: number) => value.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  private fromDateTimeLocalValue(value: string): string | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    return new Date(value).toISOString();
   }
 }

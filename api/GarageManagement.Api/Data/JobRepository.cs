@@ -7,7 +7,7 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
 {
     private const string JobColumns = """
         "Id", "Description", "Condition", "Miles", "Critical", "Registration", "Make", "Model",
-        "CustomerName", "AssignedTo", "Status", "CreatedAt"
+        "CustomerName", "AssignedTo", "Status", "ScheduledDate", "CompletedDate", "CreatedAt"
         """;
 
     private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection")
@@ -61,24 +61,15 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
         command.CommandText = """
             INSERT INTO "Jobs" (
                 "Description", "Condition", "Miles", "Critical", "Registration", "Make", "Model",
-                "CustomerName", "AssignedTo", "Status", "CreatedAt"
+                "CustomerName", "AssignedTo", "Status", "ScheduledDate", "CompletedDate", "CreatedAt"
             )
             VALUES (
                 $description, $condition, $miles, $critical, $registration, $make, $model,
-                $customerName, $assignedTo, $status, $createdAt
+                $customerName, $assignedTo, $status, $scheduledDate, $completedDate, $createdAt
             );
             SELECT last_insert_rowid();
             """;
-        command.Parameters.AddWithValue("$description", job.Description);
-        command.Parameters.AddWithValue("$condition", (object?)job.Condition ?? DBNull.Value);
-        command.Parameters.AddWithValue("$miles", (object?)job.Miles ?? DBNull.Value);
-        command.Parameters.AddWithValue("$critical", (object?)job.Critical ?? DBNull.Value);
-        command.Parameters.AddWithValue("$registration", (object?)job.Registration ?? DBNull.Value);
-        command.Parameters.AddWithValue("$make", (object?)job.Make ?? DBNull.Value);
-        command.Parameters.AddWithValue("$model", (object?)job.Model ?? DBNull.Value);
-        command.Parameters.AddWithValue("$customerName", (object?)job.CustomerName ?? DBNull.Value);
-        command.Parameters.AddWithValue("$assignedTo", (object?)job.AssignedTo ?? DBNull.Value);
-        command.Parameters.AddWithValue("$status", job.Status);
+        AddJobParameters(command, job);
         command.Parameters.AddWithValue("$createdAt", job.CreatedAt.ToString("O"));
 
         var id = Convert.ToInt32(await command.ExecuteScalarAsync());
@@ -103,10 +94,23 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
                 "Make" = $make,
                 "Model" = $model,
                 "CustomerName" = $customerName,
-                "AssignedTo" = $assignedTo
+                "AssignedTo" = $assignedTo,
+                "Status" = $status,
+                "ScheduledDate" = $scheduledDate,
+                "CompletedDate" = $completedDate
             WHERE "Id" = $id;
             """;
         command.Parameters.AddWithValue("$id", job.Id);
+        AddJobParameters(command, job);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected == 0 ? null : job;
+    }
+
+    private SqliteConnection CreateConnection() => new(_connectionString);
+
+    private static void AddJobParameters(SqliteCommand command, Job job)
+    {
         command.Parameters.AddWithValue("$description", job.Description);
         command.Parameters.AddWithValue("$condition", (object?)job.Condition ?? DBNull.Value);
         command.Parameters.AddWithValue("$miles", (object?)job.Miles ?? DBNull.Value);
@@ -116,12 +120,10 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
         command.Parameters.AddWithValue("$model", (object?)job.Model ?? DBNull.Value);
         command.Parameters.AddWithValue("$customerName", (object?)job.CustomerName ?? DBNull.Value);
         command.Parameters.AddWithValue("$assignedTo", (object?)job.AssignedTo ?? DBNull.Value);
-
-        var rowsAffected = await command.ExecuteNonQueryAsync();
-        return rowsAffected == 0 ? null : job;
+        command.Parameters.AddWithValue("$status", job.Status);
+        command.Parameters.AddWithValue("$scheduledDate", job.ScheduledDate?.ToString("O") ?? (object)DBNull.Value);
+        command.Parameters.AddWithValue("$completedDate", job.CompletedDate?.ToString("O") ?? (object)DBNull.Value);
     }
-
-    private SqliteConnection CreateConnection() => new(_connectionString);
 
     private static Job ReadJob(SqliteDataReader reader) => new()
     {
@@ -136,6 +138,13 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
         CustomerName = reader.IsDBNull(8) ? null : reader.GetString(8),
         AssignedTo = reader.IsDBNull(9) ? null : reader.GetString(9),
         Status = reader.GetString(10),
-        CreatedAt = DateTime.Parse(reader.GetString(11), null, System.Globalization.DateTimeStyles.RoundtripKind)
+        ScheduledDate = ReadNullableDateTime(reader, 11),
+        CompletedDate = ReadNullableDateTime(reader, 12),
+        CreatedAt = DateTime.Parse(reader.GetString(13), null, System.Globalization.DateTimeStyles.RoundtripKind)
     };
+
+    private static DateTime? ReadNullableDateTime(SqliteDataReader reader, int ordinal) =>
+        reader.IsDBNull(ordinal)
+            ? null
+            : DateTime.Parse(reader.GetString(ordinal), null, System.Globalization.DateTimeStyles.RoundtripKind);
 }

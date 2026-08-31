@@ -17,6 +17,14 @@ public class UpdateJobRequest
     [MaxLength(20)]
     public string? Critical { get; set; }
 
+    [Required]
+    [MaxLength(20)]
+    public string Status { get; set; } = "Unscheduled";
+
+    public DateTime? ScheduledDate { get; set; }
+
+    public DateTime? CompletedDate { get; set; }
+
     [MaxLength(20)]
     public string? Registration { get; set; }
 

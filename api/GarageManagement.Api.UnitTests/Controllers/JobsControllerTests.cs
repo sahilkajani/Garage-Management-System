@@ -57,13 +57,13 @@ public class JobsControllerTests
         await _repository.CreateAsync(new Job
         {
             Description = "Older job",
-            Status = "Unassigned",
+            Status = "Unscheduled",
             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         });
         await _repository.CreateAsync(new Job
         {
             Description = "Newer job",
-            Status = "Unassigned",
+            Status = "Unscheduled",
             CreatedAt = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc)
         });
 
@@ -84,7 +84,7 @@ public class JobsControllerTests
         {
             Description = "Brake inspection",
             Registration = "AB12 CDE",
-            Status = "Unassigned",
+            Status = "Unscheduled",
             CreatedAt = DateTime.UtcNow
         });
 
@@ -108,7 +108,7 @@ public class JobsControllerTests
     }
 
     [Test]
-    public async Task CreateJob_PersistsJobWithUnassignedStatus()
+    public async Task CreateJob_PersistsJobWithUnscheduledStatus()
     {
         var request = new CreateJobRequest
         {
@@ -128,7 +128,7 @@ public class JobsControllerTests
         Assert.That(created.ActionName, Is.EqualTo(nameof(JobsController.GetJob)));
         Assert.That(response, Is.Not.Null);
         Assert.That(response!.Description, Is.EqualTo("Annual service"));
-        Assert.That(response.Status, Is.EqualTo("Unassigned"));
+        Assert.That(response.Status, Is.EqualTo("Unscheduled"));
         Assert.That(response.AssignedTo, Is.EqualTo("Emma Richardson"));
 
         var jobs = await _repository.GetAllAsync();
@@ -194,7 +194,7 @@ public class JobsControllerTests
         var created = await _repository.CreateAsync(new Job
         {
             Description = "Original description",
-            Status = "Unassigned",
+            Status = "Unscheduled",
             CreatedAt = DateTime.UtcNow
         });
 
@@ -204,6 +204,8 @@ public class JobsControllerTests
             Condition = "On cold start",
             Miles = 12000,
             Critical = "Medium",
+            Status = "Scheduled",
+            ScheduledDate = new DateTime(2026, 9, 15, 10, 0, 0, DateTimeKind.Utc),
             CustomerName = "Jane Smith"
         };
 
@@ -216,12 +218,35 @@ public class JobsControllerTests
         Assert.That(response.Condition, Is.EqualTo("On cold start"));
         Assert.That(response.Miles, Is.EqualTo(12000));
         Assert.That(response.Critical, Is.EqualTo("Medium"));
+        Assert.That(response.Status, Is.EqualTo("Scheduled"));
+        Assert.That(response.ScheduledDate, Is.EqualTo(new DateTime(2026, 9, 15, 10, 0, 0, DateTimeKind.Utc)));
+    }
+
+    [Test]
+    public async Task UpdateJob_WithInvalidStatus_ReturnsBadRequest()
+    {
+        var created = await _repository.CreateAsync(new Job
+        {
+            Description = "Test job",
+            Status = "Unscheduled",
+            CreatedAt = DateTime.UtcNow
+        });
+
+        var request = new UpdateJobRequest
+        {
+            Description = "Test job",
+            Status = "In Progress"
+        };
+
+        var result = await _controller.UpdateJob(created.Id, request);
+
+        Assert.That(result.Result, Is.InstanceOf<BadRequestObjectResult>());
     }
 
     [Test]
     public async Task UpdateJob_WhenJobDoesNotExist_ReturnsNotFound()
     {
-        var request = new UpdateJobRequest { Description = "Missing job" };
+        var request = new UpdateJobRequest { Description = "Missing job", Status = "Unscheduled" };
 
         var result = await _controller.UpdateJob(999, request);
 

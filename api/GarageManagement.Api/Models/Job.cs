@@ -12,6 +12,8 @@ public class Job
     public string? Model { get; set; }
     public string? CustomerName { get; set; }
     public string? AssignedTo { get; set; }
-    public string Status { get; set; } = "Unassigned";
+    public string Status { get; set; } = "Unscheduled";
+    public DateTime? ScheduledDate { get; set; }
+    public DateTime? CompletedDate { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

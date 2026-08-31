@@ -10,6 +10,8 @@ export interface Job {
   customerName?: string;
   assignedTo?: string;
   status: string;
+  scheduledDate?: string;
+  completedDate?: string;
   createdAt: string;
 }
 
@@ -25,4 +27,8 @@ export interface CreateJobRequest {
   assignedTo?: string;
 }
 
-export type UpdateJobRequest = CreateJobRequest;
+export interface UpdateJobRequest extends CreateJobRequest {
+  status: string;
+  scheduledDate?: string;
+  completedDate?: string;
+}

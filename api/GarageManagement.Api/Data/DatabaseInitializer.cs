@@ -17,6 +17,8 @@ public static class DatabaseInitializer
             "CustomerName" TEXT NULL,
             "AssignedTo" TEXT NULL,
             "Status" TEXT NOT NULL,
+            "ScheduledDate" TEXT NULL,
+            "CompletedDate" TEXT NULL,
             "CreatedAt" TEXT NOT NULL
         );
         """;
@@ -25,7 +27,9 @@ public static class DatabaseInitializer
     [
         ("Condition", """ALTER TABLE "Jobs" ADD COLUMN "Condition" TEXT NULL;"""),
         ("Miles", """ALTER TABLE "Jobs" ADD COLUMN "Miles" INTEGER NULL;"""),
-        ("Critical", """ALTER TABLE "Jobs" ADD COLUMN "Critical" TEXT NULL;""")
+        ("Critical", """ALTER TABLE "Jobs" ADD COLUMN "Critical" TEXT NULL;"""),
+        ("ScheduledDate", """ALTER TABLE "Jobs" ADD COLUMN "ScheduledDate" TEXT NULL;"""),
+        ("CompletedDate", """ALTER TABLE "Jobs" ADD COLUMN "CompletedDate" TEXT NULL;""")
     ];
 
     public static void Initialize(string connectionString)
@@ -52,6 +56,16 @@ public static class DatabaseInitializer
 
             using var command = connection.CreateCommand();
             command.CommandText = sql;
+            command.ExecuteNonQuery();
+        }
+
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                UPDATE "Jobs"
+                SET "Status" = 'Unscheduled'
+                WHERE "Status" = 'Unassigned';
+                """;
             command.ExecuteNonQuery();
         }
     }

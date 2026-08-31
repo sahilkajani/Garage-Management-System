@@ -27,6 +27,9 @@
           <th>Customer</th>
           <th>Vehicle</th>
           <th>Assigned to</th>
+          <th>Status</th>
+          <th>Scheduled</th>
+          <th>Completed</th>
           <th>Created</th>
         </tr>
       </thead>
@@ -38,6 +41,13 @@
             <td>{{ job.customerName || '—' }}</td>
             <td>{{ vehicleLabel(job) }}</td>
             <td>{{ job.assignedTo || '—' }}</td>
+            <td>
+              <span class="status-badge" [class]="'status-badge--' + statusClass(job.status)">
+                {{ job.status }}
+              </span>
+            </td>
+            <td class="col-date">{{ job.scheduledDate ? (job.scheduledDate | date: 'dd MMM yyyy, HH:mm') : '—' }}</td>
+            <td class="col-date">{{ job.completedDate ? (job.completedDate | date: 'dd MMM yyyy, HH:mm') : '—' }}</td>
             <td class="col-date">{{ job.createdAt | date: 'dd MMM yyyy, HH:mm' }}</td>
           </tr>
         }

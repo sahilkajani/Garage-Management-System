@@ -13,5 +13,7 @@ public class JobResponse
     public string? CustomerName { get; set; }
     public string? AssignedTo { get; set; }
     public string Status { get; set; } = string.Empty;
+    public DateTime? ScheduledDate { get; set; }
+    public DateTime? CompletedDate { get; set; }
     public DateTime CreatedAt { get; set; }
 }

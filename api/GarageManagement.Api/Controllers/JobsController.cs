@@ -14,6 +14,11 @@ public class JobsController(IJobRepository jobs) : ControllerBase
         "High", "Medium", "Low"
     };
 
+    private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Unscheduled", "Scheduled", "Completed"
+    };
+
     [HttpGet]
     public async Task<ActionResult<IEnumerable<JobResponse>>> GetJobs()
     {
@@ -42,7 +47,7 @@ public class JobsController(IJobRepository jobs) : ControllerBase
         }
 
         var job = MapRequestToJob(request, critical);
-        job.Status = "Unassigned";
+        job.Status = "Unscheduled";
         job.CreatedAt = DateTime.UtcNow;
 
         var createdJob = await jobs.CreateAsync(job);
@@ -64,10 +69,18 @@ public class JobsController(IJobRepository jobs) : ControllerBase
             return criticalError!;
         }
 
+        if (!TryNormalizeStatus(request.Status, out var status, out var statusError))
+        {
+            return statusError!;
+        }
+
         existingJob.Description = request.Description.Trim();
         existingJob.Condition = request.Condition?.Trim();
         existingJob.Miles = request.Miles;
         existingJob.Critical = critical;
+        existingJob.Status = status!;
+        existingJob.ScheduledDate = request.ScheduledDate;
+        existingJob.CompletedDate = request.CompletedDate;
         existingJob.Registration = request.Registration?.Trim();
         existingJob.Make = request.Make?.Trim();
         existingJob.Model = request.Model?.Trim();
@@ -105,6 +118,29 @@ public class JobsController(IJobRepository jobs) : ControllerBase
         return true;
     }
 
+    private static bool TryNormalizeStatus(string? status, out string? normalized, out ActionResult? error)
+    {
+        normalized = null;
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            error = new BadRequestObjectResult("Status is required.");
+            return false;
+        }
+
+        normalized = AllowedStatuses.FirstOrDefault(value =>
+            value.Equals(status.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        if (normalized is null)
+        {
+            error = new BadRequestObjectResult("Status must be Unscheduled, Scheduled, or Completed.");
+            return false;
+        }
+
+        return true;
+    }
+
     private static Job MapRequestToJob(CreateJobRequest request, string? critical) => new()
     {
         Description = request.Description.Trim(),
@@ -131,6 +167,8 @@ public class JobsController(IJobRepository jobs) : ControllerBase
         CustomerName = job.CustomerName,
         AssignedTo = job.AssignedTo,
         Status = job.Status,
+        ScheduledDate = job.ScheduledDate,
+        CompletedDate = job.CompletedDate,
         CreatedAt = job.CreatedAt
     };
 }
