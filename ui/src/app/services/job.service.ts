@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
-import { CreateJobRequest, Job } from '../models/job.model';
+import { CreateJobRequest, Job, UpdateJobRequest } from '../models/job.model';
 
 @Injectable({ providedIn: 'root' })
 export class JobService {
@@ -14,7 +14,15 @@ export class JobService {
     return this.http.get<Job[]>(this.baseUrl);
   }
 
+  getJob(id: number): Observable<Job> {
+    return this.http.get<Job>(`${this.baseUrl}/${id}`);
+  }
+
   createJob(request: CreateJobRequest): Observable<Job> {
     return this.http.post<Job>(this.baseUrl, request);
+  }
+
+  updateJob(id: number, request: UpdateJobRequest): Observable<Job> {
+    return this.http.put<Job>(`${this.baseUrl}/${id}`, request);
   }
 }

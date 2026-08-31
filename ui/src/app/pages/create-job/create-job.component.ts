@@ -30,8 +30,13 @@ export class CreateJobComponent {
     'Tom Anderson',
   ];
 
+  readonly criticalLevels = ['High', 'Medium', 'Low'];
+
   readonly form = this.fb.group({
     description: ['', [Validators.required, Validators.maxLength(2000)]],
+    condition: ['', Validators.maxLength(1000)],
+    miles: [null as number | null, [Validators.min(0), Validators.max(9999999)]],
+    critical: [''],
     registration: ['', Validators.maxLength(20)],
     make: ['', Validators.maxLength(100)],
     model: ['', Validators.maxLength(100)],
@@ -54,6 +59,9 @@ export class CreateJobComponent {
     this.jobService
       .createJob({
         description: value.description ?? '',
+        condition: value.condition || undefined,
+        miles: value.miles ?? undefined,
+        critical: value.critical || undefined,
         registration: value.registration || undefined,
         make: value.make || undefined,
         model: value.model || undefined,

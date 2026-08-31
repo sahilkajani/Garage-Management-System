@@ -1,0 +1,101 @@
+<div class="page-header">
+  <a routerLink="/jobs/status" class="back-link">← Back to Job Status</a>
+  <h1>Job #{{ job()?.id }}</h1>
+  <p>View and edit complete job information.</p>
+</div>
+
+@if (loading()) {
+  <div class="form-card">
+    <p class="message">Loading job…</p>
+  </div>
+} @else if (loadError()) {
+  <div class="form-card form-card--error">
+    <p class="message">{{ loadError() }}</p>
+    <a routerLink="/jobs/status" class="btn-secondary">Back to Job Status</a>
+  </div>
+} @else {
+  <div class="meta-card">
+    <div>
+      <span class="meta-label">Created</span>
+      <span class="meta-value">{{ job()?.createdAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label for="description">Job description *</label>
+        <textarea id="description" formControlName="description" rows="5"></textarea>
+        @if (form.controls.description.touched && form.controls.description.errors?.['required']) {
+          <span class="field-error">Description is required.</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="condition">When does it happen?</label>
+        <textarea id="condition" formControlName="condition" rows="3"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="miles">Miles</label>
+          <input id="miles" type="number" formControlName="miles" min="0" />
+        </div>
+        <div class="form-group">
+          <label for="critical">Critical</label>
+          <select id="critical" formControlName="critical">
+            <option value="">Not set</option>
+            @for (level of criticalLevels; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="customerName">Customer name</label>
+          <input id="customerName" type="text" formControlName="customerName" />
+        </div>
+        <div class="form-group">
+          <label for="assignedTo">Assigned to</label>
+          <select id="assignedTo" formControlName="assignedTo">
+            <option value="">Unassigned</option>
+            @for (advisor of serviceAdvisors; track advisor) {
+              <option [value]="advisor">{{ advisor }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="registration">Vehicle registration</label>
+          <input id="registration" type="text" formControlName="registration" />
+        </div>
+        <div class="form-group">
+          <label for="make">Make</label>
+          <input id="make" type="text" formControlName="make" />
+        </div>
+        <div class="form-group">
+          <label for="model">Model</label>
+          <input id="model" type="text" formControlName="model" />
+        </div>
+      </div>
+
+      @if (saveError()) {
+        <div class="alert alert-error">{{ saveError() }}</div>
+      }
+      @if (saveSuccess()) {
+        <div class="alert alert-success">{{ saveSuccess() }}</div>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : 'Save changes' }}
+        </button>
+        <a routerLink="/jobs/status" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+}

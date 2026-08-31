@@ -1,0 +1,47 @@
+<div class="page-header">
+  <h1>Job Status</h1>
+  <p>View all created jobs.</p>
+</div>
+
+@if (loading()) {
+  <div class="status-card">
+    <p class="message">Loading jobs…</p>
+  </div>
+} @else if (error()) {
+  <div class="status-card status-card--error">
+    <p class="message">{{ error() }}</p>
+  </div>
+} @else if (jobs().length === 0) {
+  <div class="status-card">
+    <div class="empty-icon">☰</div>
+    <h2>No jobs yet</h2>
+    <p class="message">Create a job from the sidebar to see it listed here.</p>
+  </div>
+} @else {
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Description</th>
+          <th>Customer</th>
+          <th>Vehicle</th>
+          <th>Assigned to</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (job of jobs(); track job.id) {
+          <tr class="job-row" [routerLink]="['/jobs', job.id]">
+            <td class="col-id">#{{ job.id }}</td>
+            <td class="col-description">{{ job.description }}</td>
+            <td>{{ job.customerName || '—' }}</td>
+            <td>{{ vehicleLabel(job) }}</td>
+            <td>{{ job.assignedTo || '—' }}</td>
+            <td class="col-date">{{ job.createdAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

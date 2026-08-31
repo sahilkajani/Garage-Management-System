@@ -141,6 +141,7 @@ public class JobsControllerTests
         var request = new CreateJobRequest
         {
             Description = "  Oil change  ",
+            Condition = "  On cold start  ",
             Registration = " AB12 CDE ",
             CustomerName = " Jane Smith "
         };
@@ -149,7 +150,81 @@ public class JobsControllerTests
         var response = (result.Result as CreatedAtActionResult)!.Value as JobResponse;
 
         Assert.That(response!.Description, Is.EqualTo("Oil change"));
+        Assert.That(response.Condition, Is.EqualTo("On cold start"));
         Assert.That(response.Registration, Is.EqualTo("AB12 CDE"));
         Assert.That(response.CustomerName, Is.EqualTo("Jane Smith"));
+    }
+
+    [Test]
+    public async Task CreateJob_PersistsExtendedJobDetails()
+    {
+        var request = new CreateJobRequest
+        {
+            Description = "Grinding noise when braking",
+            Condition = "On cold start and when braking at low speed",
+            Miles = 45210,
+            Critical = "high"
+        };
+
+        var result = await _controller.CreateJob(request);
+        var response = (result.Result as CreatedAtActionResult)!.Value as JobResponse;
+
+        Assert.That(response!.Condition, Is.EqualTo("On cold start and when braking at low speed"));
+        Assert.That(response.Miles, Is.EqualTo(45210));
+        Assert.That(response.Critical, Is.EqualTo("High"));
+    }
+
+    [Test]
+    public async Task CreateJob_WithInvalidCritical_ReturnsBadRequest()
+    {
+        var request = new CreateJobRequest
+        {
+            Description = "Test job",
+            Critical = "Urgent"
+        };
+
+        var result = await _controller.CreateJob(request);
+
+        Assert.That(result.Result, Is.InstanceOf<BadRequestObjectResult>());
+    }
+
+    [Test]
+    public async Task UpdateJob_WhenJobExists_UpdatesAndReturnsJob()
+    {
+        var created = await _repository.CreateAsync(new Job
+        {
+            Description = "Original description",
+            Status = "Unassigned",
+            CreatedAt = DateTime.UtcNow
+        });
+
+        var request = new UpdateJobRequest
+        {
+            Description = "Updated description",
+            Condition = "On cold start",
+            Miles = 12000,
+            Critical = "Medium",
+            CustomerName = "Jane Smith"
+        };
+
+        var result = await _controller.UpdateJob(created.Id, request);
+        var ok = result.Result as OkObjectResult;
+        var response = ok!.Value as JobResponse;
+
+        Assert.That(response, Is.Not.Null);
+        Assert.That(response!.Description, Is.EqualTo("Updated description"));
+        Assert.That(response.Condition, Is.EqualTo("On cold start"));
+        Assert.That(response.Miles, Is.EqualTo(12000));
+        Assert.That(response.Critical, Is.EqualTo("Medium"));
+    }
+
+    [Test]
+    public async Task UpdateJob_WhenJobDoesNotExist_ReturnsNotFound()
+    {
+        var request = new UpdateJobRequest { Description = "Missing job" };
+
+        var result = await _controller.UpdateJob(999, request);
+
+        Assert.That(result.Result, Is.InstanceOf<NotFoundResult>());
     }
 }

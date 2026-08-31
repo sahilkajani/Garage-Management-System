@@ -5,6 +5,11 @@ namespace GarageManagement.Api.Data;
 
 public class JobRepository(IConfiguration configuration) : IJobRepository
 {
+    private const string JobColumns = """
+        "Id", "Description", "Condition", "Miles", "Critical", "Registration", "Make", "Model",
+        "CustomerName", "AssignedTo", "Status", "CreatedAt"
+        """;
+
     private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection")
         ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
 
@@ -14,8 +19,8 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
         await connection.OpenAsync();
 
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT "Id", "Description", "Registration", "Make", "Model", "CustomerName", "AssignedTo", "Status", "CreatedAt"
+        command.CommandText = $"""
+            SELECT {JobColumns}
             FROM "Jobs"
             ORDER BY "CreatedAt" DESC;
             """;
@@ -36,8 +41,8 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
         await connection.OpenAsync();
 
         await using var command = connection.CreateCommand();
-        command.CommandText = """
-            SELECT "Id", "Description", "Registration", "Make", "Model", "CustomerName", "AssignedTo", "Status", "CreatedAt"
+        command.CommandText = $"""
+            SELECT {JobColumns}
             FROM "Jobs"
             WHERE "Id" = $id;
             """;
@@ -54,11 +59,20 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
 
         await using var command = connection.CreateCommand();
         command.CommandText = """
-            INSERT INTO "Jobs" ("Description", "Registration", "Make", "Model", "CustomerName", "AssignedTo", "Status", "CreatedAt")
-            VALUES ($description, $registration, $make, $model, $customerName, $assignedTo, $status, $createdAt);
+            INSERT INTO "Jobs" (
+                "Description", "Condition", "Miles", "Critical", "Registration", "Make", "Model",
+                "CustomerName", "AssignedTo", "Status", "CreatedAt"
+            )
+            VALUES (
+                $description, $condition, $miles, $critical, $registration, $make, $model,
+                $customerName, $assignedTo, $status, $createdAt
+            );
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("$description", job.Description);
+        command.Parameters.AddWithValue("$condition", (object?)job.Condition ?? DBNull.Value);
+        command.Parameters.AddWithValue("$miles", (object?)job.Miles ?? DBNull.Value);
+        command.Parameters.AddWithValue("$critical", (object?)job.Critical ?? DBNull.Value);
         command.Parameters.AddWithValue("$registration", (object?)job.Registration ?? DBNull.Value);
         command.Parameters.AddWithValue("$make", (object?)job.Make ?? DBNull.Value);
         command.Parameters.AddWithValue("$model", (object?)job.Model ?? DBNull.Value);
@@ -72,18 +86,56 @@ public class JobRepository(IConfiguration configuration) : IJobRepository
         return job;
     }
 
+    public async Task<Job?> UpdateAsync(Job job)
+    {
+        await using var connection = CreateConnection();
+        await connection.OpenAsync();
+
+        await using var command = connection.CreateCommand();
+        command.CommandText = """
+            UPDATE "Jobs"
+            SET
+                "Description" = $description,
+                "Condition" = $condition,
+                "Miles" = $miles,
+                "Critical" = $critical,
+                "Registration" = $registration,
+                "Make" = $make,
+                "Model" = $model,
+                "CustomerName" = $customerName,
+                "AssignedTo" = $assignedTo
+            WHERE "Id" = $id;
+            """;
+        command.Parameters.AddWithValue("$id", job.Id);
+        command.Parameters.AddWithValue("$description", job.Description);
+        command.Parameters.AddWithValue("$condition", (object?)job.Condition ?? DBNull.Value);
+        command.Parameters.AddWithValue("$miles", (object?)job.Miles ?? DBNull.Value);
+        command.Parameters.AddWithValue("$critical", (object?)job.Critical ?? DBNull.Value);
+        command.Parameters.AddWithValue("$registration", (object?)job.Registration ?? DBNull.Value);
+        command.Parameters.AddWithValue("$make", (object?)job.Make ?? DBNull.Value);
+        command.Parameters.AddWithValue("$model", (object?)job.Model ?? DBNull.Value);
+        command.Parameters.AddWithValue("$customerName", (object?)job.CustomerName ?? DBNull.Value);
+        command.Parameters.AddWithValue("$assignedTo", (object?)job.AssignedTo ?? DBNull.Value);
+
+        var rowsAffected = await command.ExecuteNonQueryAsync();
+        return rowsAffected == 0 ? null : job;
+    }
+
     private SqliteConnection CreateConnection() => new(_connectionString);
 
     private static Job ReadJob(SqliteDataReader reader) => new()
     {
         Id = reader.GetInt32(0),
         Description = reader.GetString(1),
-        Registration = reader.IsDBNull(2) ? null : reader.GetString(2),
-        Make = reader.IsDBNull(3) ? null : reader.GetString(3),
-        Model = reader.IsDBNull(4) ? null : reader.GetString(4),
-        CustomerName = reader.IsDBNull(5) ? null : reader.GetString(5),
-        AssignedTo = reader.IsDBNull(6) ? null : reader.GetString(6),
-        Status = reader.GetString(7),
-        CreatedAt = DateTime.Parse(reader.GetString(8), null, System.Globalization.DateTimeStyles.RoundtripKind)
+        Condition = reader.IsDBNull(2) ? null : reader.GetString(2),
+        Miles = reader.IsDBNull(3) ? null : reader.GetInt32(3),
+        Critical = reader.IsDBNull(4) ? null : reader.GetString(4),
+        Registration = reader.IsDBNull(5) ? null : reader.GetString(5),
+        Make = reader.IsDBNull(6) ? null : reader.GetString(6),
+        Model = reader.IsDBNull(7) ? null : reader.GetString(7),
+        CustomerName = reader.IsDBNull(8) ? null : reader.GetString(8),
+        AssignedTo = reader.IsDBNull(9) ? null : reader.GetString(9),
+        Status = reader.GetString(10),
+        CreatedAt = DateTime.Parse(reader.GetString(11), null, System.Globalization.DateTimeStyles.RoundtripKind)
     };
 }

@@ -18,6 +18,32 @@
       }
     </div>
 
+    <div class="form-group">
+      <label for="condition">When does it happen?</label>
+      <textarea
+        id="condition"
+        formControlName="condition"
+        rows="3"
+        placeholder="e.g. On cold start, when braking at low speed, or after long motorway drives."
+      ></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="miles">Miles</label>
+        <input id="miles" type="number" formControlName="miles" min="0" placeholder="e.g. 45210" />
+      </div>
+      <div class="form-group">
+        <label for="critical">Critical</label>
+        <select id="critical" formControlName="critical">
+          <option value="">Not set</option>
+          @for (level of criticalLevels; track level) {
+            <option [value]="level">{{ level }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
     <div class="form-row">
       <div class="form-group">
         <label for="customerName">Customer name</label>

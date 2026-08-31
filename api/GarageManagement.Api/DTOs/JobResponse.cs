@@ -4,6 +4,9 @@ public class JobResponse
 {
     public int Id { get; set; }
     public string Description { get; set; } = string.Empty;
+    public string? Condition { get; set; }
+    public int? Miles { get; set; }
+    public string? Critical { get; set; }
     public string? Registration { get; set; }
     public string? Make { get; set; }
     public string? Model { get; set; }

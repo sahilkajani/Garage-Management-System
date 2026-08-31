@@ -1,0 +1,107 @@
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  margin: 0 0 0.35rem;
+  font-size: 1.5rem;
+  color: #2d1657;
+}
+
+.page-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.status-card,
+.table-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.status-card {
+  padding: 3rem 2rem;
+  text-align: center;
+  max-width: 520px;
+}
+
+.status-card--error {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.status-card h2 {
+  margin: 0 0 0.75rem;
+  color: #2d1657;
+  font-size: 1.25rem;
+}
+
+.message {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.status-card--error .message {
+  color: #b91c1c;
+}
+
+.table-card {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  padding: 0.85rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+th {
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #fafbfc;
+}
+
+tbody tr:hover {
+  background: #fafbfc;
+}
+
+.job-row {
+  cursor: pointer;
+}
+
+.job-row:hover {
+  background: #f0ebf8;
+}
+
+.col-id {
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.col-description {
+  max-width: 280px;
+  color: #1a1a2e;
+}
+
+.col-date {
+  white-space: nowrap;
+  color: #6b7280;
+}

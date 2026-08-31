@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GarageManagement.Api.DTOs;
 
-public class CreateJobRequest
+public class UpdateJobRequest
 {
     [Required]
     [MaxLength(2000)]
