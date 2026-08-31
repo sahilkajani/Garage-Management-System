@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="GarageManagement.Api.UnitTests/GarageManagement.Api.UnitTests.csproj" Id="b224c59b-0c87-4751-a659-56227227816b" />
   <Project Path="GarageManagement.Api/GarageManagement.Api.csproj" />
 </Solution>
