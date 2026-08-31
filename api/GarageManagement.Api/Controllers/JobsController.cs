@@ -2,29 +2,24 @@ using GarageManagement.Api.Data;
 using GarageManagement.Api.DTOs;
 using GarageManagement.Api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace GarageManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class JobsController(AppDbContext db) : ControllerBase
+public class JobsController(IJobRepository jobs) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<JobResponse>>> GetJobs()
     {
-        var jobs = await db.Jobs
-            .OrderByDescending(j => j.CreatedAt)
-            .Select(j => ToResponse(j))
-            .ToListAsync();
-
-        return Ok(jobs);
+        var jobList = await jobs.GetAllAsync();
+        return Ok(jobList.Select(ToResponse));
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<JobResponse>> GetJob(int id)
     {
-        var job = await db.Jobs.FindAsync(id);
+        var job = await jobs.GetByIdAsync(id);
         if (job is null)
         {
             return NotFound();
@@ -48,10 +43,9 @@ public class JobsController(AppDbContext db) : ControllerBase
             CreatedAt = DateTime.UtcNow
         };
 
-        db.Jobs.Add(job);
-        await db.SaveChangesAsync();
+        var createdJob = await jobs.CreateAsync(job);
 
-        return CreatedAtAction(nameof(GetJob), new { id = job.Id }, ToResponse(job));
+        return CreatedAtAction(nameof(GetJob), new { id = createdJob.Id }, ToResponse(createdJob));
     }
 
     private static JobResponse ToResponse(Job job) => new()

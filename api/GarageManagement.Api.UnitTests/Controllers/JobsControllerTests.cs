@@ -3,31 +3,41 @@ using GarageManagement.Api.Data;
 using GarageManagement.Api.DTOs;
 using GarageManagement.Api.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Configuration;
 
 namespace GarageManagement.Api.UnitTests.Controllers;
 
 [TestFixture]
 public class JobsControllerTests
 {
-    private AppDbContext _db = null!;
+    private SqliteConnection _connection = null!;
+    private IJobRepository _repository = null!;
     private JobsController _controller = null!;
 
     [SetUp]
     public void SetUp()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
+        const string connectionString = "Data Source=JobsControllerTests;Mode=Memory;Cache=Shared";
+        _connection = new SqliteConnection(connectionString);
+        _connection.Open();
+        DatabaseInitializer.Initialize(_connection);
 
-        _db = new AppDbContext(options);
-        _controller = new JobsController(_db);
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:DefaultConnection"] = connectionString
+            })
+            .Build();
+
+        _repository = new JobRepository(configuration);
+        _controller = new JobsController(_repository);
     }
 
     [TearDown]
     public void TearDown()
     {
-        _db.Dispose();
+        _connection.Dispose();
     }
 
     [Test]
@@ -44,10 +54,18 @@ public class JobsControllerTests
     [Test]
     public async Task GetJobs_ReturnsJobsOrderedByCreatedAtDescending()
     {
-        _db.Jobs.AddRange(
-            new Job { Description = "Older job", CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) },
-            new Job { Description = "Newer job", CreatedAt = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc) });
-        await _db.SaveChangesAsync();
+        await _repository.CreateAsync(new Job
+        {
+            Description = "Older job",
+            Status = "Unassigned",
+            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+        });
+        await _repository.CreateAsync(new Job
+        {
+            Description = "Newer job",
+            Status = "Unassigned",
+            CreatedAt = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc)
+        });
 
         var result = await _controller.GetJobs();
 
@@ -62,15 +80,13 @@ public class JobsControllerTests
     [Test]
     public async Task GetJob_WhenJobExists_ReturnsJob()
     {
-        var job = new Job
+        var job = await _repository.CreateAsync(new Job
         {
             Description = "Brake inspection",
             Registration = "AB12 CDE",
             Status = "Unassigned",
             CreatedAt = DateTime.UtcNow
-        };
-        _db.Jobs.Add(job);
-        await _db.SaveChangesAsync();
+        });
 
         var result = await _controller.GetJob(job.Id);
 
@@ -114,7 +130,9 @@ public class JobsControllerTests
         Assert.That(response!.Description, Is.EqualTo("Annual service"));
         Assert.That(response.Status, Is.EqualTo("Unassigned"));
         Assert.That(response.AssignedTo, Is.EqualTo("Emma Richardson"));
-        Assert.That(_db.Jobs.Count(), Is.EqualTo(1));
+
+        var jobs = await _repository.GetAllAsync();
+        Assert.That(jobs, Has.Count.EqualTo(1));
     }
 
     [Test]
