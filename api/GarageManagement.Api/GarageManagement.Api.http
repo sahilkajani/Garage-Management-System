@@ -1,6 +1,23 @@
-@GarageManagement.Api_HostAddress = http://localhost:5034
+@GarageManagement.Api_HostAddress = https://localhost:7055
 
-GET {{GarageManagement.Api_HostAddress}}/weatherforecast/
+GET {{GarageManagement.Api_HostAddress}}/api/jobs
 Accept: application/json
 
 ###
+
+GET {{GarageManagement.Api_HostAddress}}/api/jobs/1
+Accept: application/json
+
+###
+
+POST {{GarageManagement.Api_HostAddress}}/api/jobs
+Content-Type: application/json
+
+{
+  "description": "Annual service and brake inspection",
+  "registration": "AB12 CDE",
+  "make": "Ford",
+  "model": "Focus",
+  "customerName": "Jane Smith",
+  "assignedTo": "Emma Richardson"
+}
