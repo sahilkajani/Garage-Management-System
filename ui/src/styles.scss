@@ -1,0 +1,27 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  color: #111827;
+  background: #f3f4f6;
+}
+
+code {
+  font-family: Consolas, 'Courier New', monospace;
+}

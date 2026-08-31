@@ -1,0 +1,55 @@
+<section class="dashboard">
+  <div class="dashboard__stats">
+    @for (stat of stats; track stat.label) {
+      <article class="card stat-card" [attr.data-accent]="stat.accent">
+        <p class="stat-card__label">{{ stat.label }}</p>
+        <p class="stat-card__value">{{ stat.value }}</p>
+        <p class="stat-card__detail">{{ stat.detail }}</p>
+      </article>
+    }
+  </div>
+
+  <div class="dashboard__grid">
+    <article class="card panel">
+      <header class="panel__header">
+        <div>
+          <h2 class="panel__title">API Connection</h2>
+          <p class="panel__subtitle">Sample data from the .NET WeatherForecast endpoint</p>
+        </div>
+      </header>
+
+      @if (loading()) {
+        <p class="panel__message">Loading forecasts from the API...</p>
+      } @else if (error()) {
+        <p class="panel__message panel__message--error">{{ error() }}</p>
+      } @else {
+        <div class="forecast-list">
+          @for (forecast of forecasts(); track forecast.date) {
+            <div class="forecast-list__item">
+              <div>
+                <p class="forecast-list__date">{{ forecast.date }}</p>
+                <p class="forecast-list__summary">{{ forecast.summary ?? 'No summary' }}</p>
+              </div>
+              <p class="forecast-list__temp">{{ forecast.temperatureC }}°C / {{ forecast.temperatureF }}°F</p>
+            </div>
+          }
+        </div>
+      }
+    </article>
+
+    <article class="card panel">
+      <header class="panel__header">
+        <div>
+          <h2 class="panel__title">Getting Started</h2>
+          <p class="panel__subtitle">Run the full stack locally</p>
+        </div>
+      </header>
+
+      <ol class="steps">
+        <li>Start the API: <code>dotnet run --project api/GarageManagement.Api</code></li>
+        <li>Start the UI: <code>npm start</code> from the <code>ui</code> folder</li>
+        <li>Open <code>http://localhost:4200</code> and verify the forecast list loads</li>
+      </ol>
+    </article>
+  </div>
+</section>

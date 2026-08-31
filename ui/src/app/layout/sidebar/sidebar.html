@@ -1,0 +1,23 @@
+<aside class="sidebar">
+  <div class="sidebar__brand">
+    <span class="sidebar__logo" aria-hidden="true">G</span>
+    <div>
+      <p class="sidebar__title">Garage MS</p>
+      <p class="sidebar__subtitle">Management System</p>
+    </div>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Main navigation">
+    @for (item of navItems; track item.route) {
+      <a
+        class="sidebar__link"
+        [routerLink]="item.route"
+        routerLinkActive="sidebar__link--active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/' }"
+      >
+        <span class="sidebar__icon" [attr.data-icon]="item.icon" aria-hidden="true"></span>
+        <span>{{ item.label }}</span>
+      </a>
+    }
+  </nav>
+</aside>
