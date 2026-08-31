@@ -28,44 +28,54 @@
   cursor: not-allowed;
 }
 
-.empty-dashboard {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  min-height: 400px;
+.message {
+  margin: 0;
+  color: #6b7280;
 }
 
-.empty-card {
+.message--error {
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  max-width: 520px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.metric-card {
   background: #fff;
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  padding: 3rem 2.5rem;
-  text-align: center;
-  max-width: 520px;
-  width: 100%;
+  padding: 1.5rem 1.25rem;
 }
 
-.empty-icon {
-  font-size: 2.5rem;
-  color: #d1d5db;
-  margin-bottom: 1rem;
-}
-
-.empty-card h2 {
-  margin: 0 0 0.75rem;
-  color: #2d1657;
-  font-size: 1.35rem;
-}
-
-.empty-card p {
-  margin: 0 0 0.75rem;
-  color: #6b7280;
-  line-height: 1.6;
-}
-
-.empty-card .hint {
+.metric-card__label {
+  margin: 0;
   font-size: 0.9rem;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #f0f0f0;
+  color: #6b7280;
+}
+
+.metric-card__value {
+  margin: 0.5rem 0 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.metric-card[data-metric='unscheduled'] .metric-card__value {
+  color: #d97706;
+}
+
+.metric-card[data-metric='scheduled'] .metric-card__value {
+  color: #2563eb;
+}
+
+.metric-card[data-metric='completed'] .metric-card__value {
+  color: #15803d;
 }

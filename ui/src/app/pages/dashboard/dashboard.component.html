@@ -6,11 +6,25 @@
   </div>
 </div>
 
-<div class="empty-dashboard">
-  <div class="empty-card">
-    <div class="empty-icon">▦</div>
-    <h2>Dashboard</h2>
-    <p>Your garage overview will appear here — job stats, revenue charts, and activity summaries.</p>
-    <p class="hint">This page is intentionally empty for now. Use <strong>Create Job</strong> in the sidebar to add a new job.</p>
+@if (loading()) {
+  <p class="message">Loading dashboard metrics…</p>
+} @else if (error()) {
+  <div class="message message--error">{{ error() }}</div>
+} @else {
+  <div class="metrics-grid">
+    <article class="metric-card" data-metric="unscheduled">
+      <p class="metric-card__label">Unscheduled Jobs</p>
+      <p class="metric-card__value">{{ unscheduledCount() }}</p>
+    </article>
+
+    <article class="metric-card" data-metric="scheduled">
+      <p class="metric-card__label">Scheduled Jobs</p>
+      <p class="metric-card__value">{{ scheduledCount() }}</p>
+    </article>
+
+    <article class="metric-card" data-metric="completed">
+      <p class="metric-card__label">Completed Jobs</p>
+      <p class="metric-card__value">{{ completedCount() }}</p>
+    </article>
   </div>
-</div>
+}
